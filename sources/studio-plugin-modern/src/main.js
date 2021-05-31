@@ -28,6 +28,8 @@ import WorkRounded from '@material-ui/icons/WorkRounded';
 import List from '@material-ui/core/List';
 import Link from '@material-ui/core/Link';
 
+import Dialog from './Dialog';
+
 const { CrafterCMSNextBridge, AuthMonitor } = components;
 
 const useStyles = makeStyles(() => ({
@@ -65,6 +67,8 @@ function UI() {
   const [active, setActive] = useState(true);
   const [sites, setSites] = useState(null);
   const [user, setUser] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [siteId, setSiteId] = useState(null);
 
   const loadSites = () => services.sites.fetchSites().subscribe(setSites);
   const logout = () => services.auth.logout().subscribe(() => {
@@ -75,6 +79,11 @@ function UI() {
   useEffect(() => {
     services.auth.me().subscribe(setUser);
   }, []);
+
+  const loadSitePages = (siteId) => {
+    setOpenDialog(true);
+    setSiteId(siteId);
+  };
 
   return (
     <>
@@ -95,7 +104,7 @@ function UI() {
                 <List className={classes.root}>
                   {
                     sites.map(site =>
-                      <ListItem key={site.id} divider>
+                      <ListItem key={site.id} button divider onClick={() => loadSitePages(site.id)}>
                         <ListItemAvatar>
                           <Avatar>
                             <WorkRounded />
@@ -123,6 +132,13 @@ function UI() {
             )
           )
         }
+      </section>
+      <section>
+        <Dialog
+          isOpen={openDialog}
+          siteId={siteId}
+          handleClickClose={() => setOpenDialog(false)}
+         />
       </section>
       <AuthMonitor />
     </>
